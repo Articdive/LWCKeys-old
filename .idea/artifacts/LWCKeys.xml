@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="LWCKeys">
+    <output-path>$PROJECT_DIR$/out/artifacts/LWCKeys</output-path>
+    <root id="archive" name="LWCKeys.jar">
+      <element id="module-output" name="LWCKeys" />
+      <element id="file-copy" path="$PROJECT_DIR$/config.yml" />
+      <element id="file-copy" path="$PROJECT_DIR$/plugin.yml" />
+    </root>
+  </artifact>
+</component>
