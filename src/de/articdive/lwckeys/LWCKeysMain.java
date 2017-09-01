@@ -2,16 +2,13 @@ package de.articdive.lwckeys;
 
 import com.griefcraft.lwc.LWC;
 import com.griefcraft.lwc.LWCPlugin;
+import com.griefcraft.util.TimeUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -19,17 +16,17 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 public class LWCKeysMain extends JavaPlugin {
     private static LWCKeysMain instance;
     private static Plugin plugin;
     private LWC lwc;
-    public static String displayname;
-    private List<String> lore;
-    private Material keymaterial = Material.TRIPWIRE_HOOK;
     private boolean removeProtection;
+    private boolean sinceowneronline;
     private String configversion;
-    private HashMap<Enchantment, Integer> enchantments = new HashMap<>();
+    private Set<String> keysconfig;
+    public HashMap<Integer, Key> keys = new HashMap<>();
 
     @Override
     public void onEnable() {
@@ -44,8 +41,15 @@ public class LWCKeysMain extends JavaPlugin {
             lwc = ((LWCPlugin) lwcp).getLWC();
             getLogger().info("Hooked into LWC version " + lwcp.getDescription().getVersion() + " successfully");
             registerEvents(this, new LWCKeysListener());
+            getCommand("lwckeys").setExecutor(new LWCKeysCommands());
             getLogger().info("LWCKeys has been enabled!");
         }
+    }
+
+    @Override
+    public void onDisable() {
+        plugin = null;
+        getLogger().info("LWCKeys has been disabled!");
     }
 
     private void createConfig() {
@@ -61,7 +65,7 @@ public class LWCKeysMain extends JavaPlugin {
             } else {
                 getLogger().info("Config.yml found, loading!");
                 loadConfig();
-                if (configversion == null || !(configversion.equals("1.3.0"))) {
+                if (configversion == null || !(configversion.equals("2.1.0"))) {
                     File old = new File(getDataFolder(), "configold.yml");
                     if (old.exists()) {
                         old.delete();
@@ -79,17 +83,45 @@ public class LWCKeysMain extends JavaPlugin {
 
     private void loadConfig() {
         configversion = plugin.getConfig().getString("config-version");
-        displayname = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("displayname"));
-        lore = translateList(plugin.getConfig().getStringList("lore"));
         removeProtection = plugin.getConfig().getBoolean("remove-protection");
-        try {
-            keymaterial = Material.valueOf(plugin.getConfig().getString("material").toUpperCase());
-        } catch (Exception e) {
-            keymaterial = Material.STONE;
-            displayname = ChatColor.RED + "invalid Material";
-            this.getLogger().info("invalid material for LWCKey!");
+        sinceowneronline = plugin.getConfig().getBoolean("since-owner-online");
+        keysconfig = plugin.getConfig().getConfigurationSection("keys").getKeys(false);
+        createKeys();
+    }
+
+    public void createKeys() {
+        int j = -1;
+        for (String key : keysconfig) {
+            j = j + 1;
+            ConfigurationSection var = getConfig().getConfigurationSection("keys." + key);
+            String name = key;
+            String displayname = ChatColor.translateAlternateColorCodes('&',var.getString("displayname"));
+            List<String> lore = translateList(var.getStringList("lore"));
+            Material mat;
+            try {
+                mat = Material.valueOf(var.getString("material"));
+            } catch (Exception e) {
+                getLogger().info("Invalid Material");
+                mat = Material.TRIPWIRE_HOOK;
+                displayname = "invalid";
+            }
+            HashMap<Enchantment, Integer> configenchants = new HashMap<>();
+            List<String> configlist = var.getStringList("enchantments");
+            for (int k = 0; k < configlist.size(); k++) {
+                String line = configlist.get(k).toUpperCase();
+                String[] enchantmentlevel = line.split(",");
+                if (enchantmentlevel.length <= 2 && enchantmentlevel.length != 0) {
+                    try {
+                        configenchants.put(Enchantment.getByName(enchantmentlevel[0].toUpperCase()), Integer.parseInt(enchantmentlevel[1]));
+                    } catch (IllegalArgumentException e) {
+                        getLogger().info(enchantmentlevel[0] + " is not a valid enchantment or " + enchantmentlevel[1] + " is not a valid Integer, skipping!");
+                    }
+                }
+            }
+            long time = TimeUtil.parseTime(var.getString("time"));
+            Key test = new Key(name, displayname, lore, mat, configenchants, time);
+            keys.put(j, test);
         }
-        enchantments = getEnchantmentsFromConfig();
     }
 
     private List<String> translateList(List<String> list) {
@@ -100,22 +132,6 @@ public class LWCKeysMain extends JavaPlugin {
         return newlist;
     }
 
-    @Override
-    public void onDisable() {
-        plugin = null;
-        getLogger().info("LWCKeys has been disabled!");
-    }
-
-    public static Plugin getPlugin() {
-        return plugin;
-    }
-
-    private static void registerEvents(org.bukkit.plugin.Plugin plugin, Listener... listeners) {
-        for (Listener listener : listeners) {
-            Bukkit.getServer().getPluginManager().registerEvents(listener, plugin);
-        }
-    }
-
     public LWC getLWC() {
         return lwc;
     }
@@ -124,153 +140,22 @@ public class LWCKeysMain extends JavaPlugin {
         return instance;
     }
 
-    public ItemStack createkey(int amount) {
-        ItemStack key = new ItemStack(keymaterial, amount);
-        ItemMeta keymeta = key.getItemMeta();
-        keymeta.setDisplayName(displayname);
-        keymeta.setLore(lore);
-            for (Enchantment enchantment : enchantments.keySet()) {
-                int level = enchantments.get(enchantment);
-                keymeta.addEnchant(enchantment, level, true);
-            }
-        key.setItemMeta(keymeta);
-        return key;
-    }
-
-    @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        String[] index = new String[]{ChatColor.YELLOW + "/" + label + " give [player] [amount]"};
-        if (cmd.getName().equalsIgnoreCase("lwckeys")) {
-            if (args.length == 0) {
-                sender.sendMessage(index);
-                return true;
-            }
-            if (args.length >= 1) {
-                if (args[0].equalsIgnoreCase("give")) {
-                    if (sender.hasPermission("lwckeys.give")) {
-                        int amount = 1;
-                        if (args.length == 1) {
-                            if (sender instanceof Player) {
-                                Player player = (Player) sender;
-                                player.getInventory().addItem(createkey(1));
-                                sender.sendMessage(ChatColor.GREEN + "You have given yourself 1 LWCKey");
-                                return true;
-                            } else {
-                                sender.sendMessage(ChatColor.RED + "This command is only available to players");
-                                return true;
-                            }
-                        }
-                        if (args.length == 2) {
-                            if (isInt(args[1]) && sender instanceof Player && !isPlayer(args[1])) {
-                                Player player = (Player) sender;
-                                player.getInventory().addItem(createkey(Integer.parseInt(args[1])));
-                                sender.sendMessage(ChatColor.GREEN + "You have given yourself " + Integer.parseInt(args[1]) + " LWCKey(s)");
-                                return true;
-                            }
-                            Player target = Bukkit.getPlayerExact(args[1]);
-                            if (target != null) {
-                                target.getInventory().addItem(createkey(amount));
-                                sender.sendMessage(ChatColor.GREEN + "You have added " + Integer.toString(amount) + " LWCKey(s) to " + args[1] + "'s inventory");
-                                return true;
-                            }
-                            if (target == null && !isPlayer(args[1])) {
-                                sender.sendMessage(ChatColor.RED + "Player " + args[1] + " couldn't be found or is not online!");
-                                return true;
-                            }
-                        }
-                        if (args.length == 3) {
-                            try {
-                                amount = getInt(args[2]);
-                            } catch (NumberFormatException e) {
-                                sender.sendMessage(ChatColor.RED + args[2] + " is not a valid number!");
-                                return true;
-                            }
-                            Player target = Bukkit.getPlayerExact(args[1]);
-                            if (target != null) {
-                                target.getInventory().addItem(createkey(amount));
-                                sender.sendMessage(ChatColor.GREEN + "You have added " + Integer.toString(amount) + " LWCKey(s) to " + args[1] + "'s inventory");
-                                return true;
-                            } else {
-                                sender.sendMessage(ChatColor.RED + "Player " + args[1] + " couldn't be found or is not online!");
-                                return true;
-                            }
-                        }
-                    } else {
-                        sender.sendMessage(ChatColor.RED + "Sorry you don't have permission to use this command!");
-                    }
-                } else {
-                    sender.sendMessage(index);
-                }
-            }
-        }
-        return false;
-    }
-
-    public Material getKeymaterial() {
-        return keymaterial;
-    }
-
-    public String getDisplayname() {
-        return displayname;
-    }
-
-    public List<String> getLore() {
-        return lore;
-    }
-
-    public boolean getremoveProtection() {
+    public boolean getremoveProtectionBoolean() {
         return removeProtection;
     }
 
-    public Integer getInt(String s) {
-        int i = 1;
-        try {
-            i = Integer.parseInt(s);
-        } catch (NumberFormatException e) {
-            throw e;
 
-        }
-        return i;
+    public boolean getSinceOwnerOnlineBoolean() {
+        return sinceowneronline;
     }
 
-    public boolean isInt(String s) {
-        try {
-            Integer.parseInt(s);
-        } catch (NumberFormatException e) {
-            return false;
+    private static void registerEvents(org.bukkit.plugin.Plugin plugin, Listener... listeners) {
+        for (Listener listener : listeners) {
+            Bukkit.getServer().getPluginManager().registerEvents(listener, plugin);
         }
-        return true;
     }
 
-    public boolean isPlayer(String s) {
-        Player john = Bukkit.getPlayerExact(s);
-        if (john != null) {
-            return true;
-        }
-        if (john == null) {
-            return false;
-        }
-        return false;
-    }
-
-    public HashMap<Enchantment, Integer> getEnchantmentsFromConfig() {
-        HashMap<Enchantment, Integer> configenchants = new HashMap<>();
-        List<String> configlist = getConfig().getStringList("enchantments");
-        for (int j = 0; j < configlist.size(); j++) {
-            String line = configlist.get(j);
-            String[] enchantmentlevel = line.split(",");
-            if (enchantmentlevel.length <= 2 && enchantmentlevel.length != 0) {
-                try {
-                    configenchants.put(Enchantment.getByName(enchantmentlevel[0].toUpperCase()), Integer.parseInt(enchantmentlevel[1]));
-                } catch (IllegalArgumentException e) {
-                    getLogger().info(enchantmentlevel[0] + " is not a valid enchantment or " + enchantmentlevel[1] + " is not a valid Integer, skipping!");
-                }
-            }
-        }
-        return configenchants;
-    }
-
-    public HashMap<Enchantment, Integer> getEnchantments() {
-        return enchantments;
+    public HashMap<Integer, Key> getKeys() {
+        return keys;
     }
 }
