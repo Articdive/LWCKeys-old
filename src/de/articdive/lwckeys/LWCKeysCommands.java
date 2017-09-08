@@ -27,6 +27,9 @@ public class LWCKeysCommands implements CommandExecutor {
                     if (cs.hasPermission("lwckeys.give")) {
                         cs.sendMessage(ChatColor.RED + "You need to specify a key!");
                         return true;
+                    } else {
+                        cs.sendMessage(ChatColor.RED + "Sorry you don't have permission to use this command!");
+                        return true;
                     }
                 } else {
                     cs.sendMessage(index);
@@ -51,6 +54,9 @@ public class LWCKeysCommands implements CommandExecutor {
                         }
                         cs.sendMessage(ChatColor.RED + args[1] + " is not a valid keyname!");
                         return true;
+                    } else {
+                        cs.sendMessage(ChatColor.RED + "Sorry you don't have permission to use this command!");
+                        return true;
                     }
                 } else {
                     cs.sendMessage(index);
@@ -74,6 +80,9 @@ public class LWCKeysCommands implements CommandExecutor {
                             }
                         }
                         cs.sendMessage(ChatColor.RED + args[1] + " is not a valid keyname!");
+                        return true;
+                    } else {
+                        cs.sendMessage(ChatColor.RED + "Sorry you don't have permission to use this command!");
                         return true;
                     }
                 } else {
@@ -104,6 +113,9 @@ public class LWCKeysCommands implements CommandExecutor {
                             cs.sendMessage(ChatColor.RED + args[1] + " is not a valid keyname!");
                             return true;
                         }
+                    } else {
+                        cs.sendMessage(ChatColor.RED + "Sorry you don't have permission to use this command!");
+                        return true;
                     }
                 } else {
                     cs.sendMessage(index);

@@ -95,7 +95,7 @@ public class LWCKeysMain extends JavaPlugin {
             j = j + 1;
             ConfigurationSection var = getConfig().getConfigurationSection("keys." + key);
             String name = key;
-            String displayname = ChatColor.translateAlternateColorCodes('&',var.getString("displayname"));
+            String displayname = ChatColor.translateAlternateColorCodes('&', var.getString("displayname"));
             List<String> lore = translateList(var.getStringList("lore"));
             Material mat;
             try {

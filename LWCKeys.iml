@@ -7,7 +7,7 @@
     </content>
     <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="spigot-1.12.1" level="project" />
+    <orderEntry type="library" name="Spigot (1.12.1)" level="project" />
     <orderEntry type="library" name="EntityLWC" level="project" />
   </component>
 </module>

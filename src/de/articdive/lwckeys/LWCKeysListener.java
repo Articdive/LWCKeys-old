@@ -23,7 +23,6 @@ public class LWCKeysListener implements Listener {
     private LWCKeysMain main = LWCKeysMain.getInstance();
     private LWC lwc = main.getLWC();
     private HashMap<Integer, Key> keys = main.getKeys();
-    private boolean removeprotection = main.getremoveProtectionBoolean();
     private boolean sinceowneronline = main.getSinceOwnerOnlineBoolean();
 
     @EventHandler
@@ -82,24 +81,24 @@ public class LWCKeysListener implements Listener {
 
     private boolean timeandownermatchesup(OfflinePlayer owner, long delay, Player player, Protection protection) {
         long servertime = System.currentTimeMillis();
-        if (sinceowneronline){
+        if (sinceowneronline) {
             long sincelogin = owner.getLastPlayed();
 
-            if (servertime >= sincelogin + delay){
+            if (servertime >= sincelogin + delay) {
                 return true;
             }
-            if (servertime < sincelogin + delay){
-                player.sendMessage(ChatColor.RED + "You must wait " + timeToString((servertime - (sincelogin + delay)) /1000L)+ " before you can unlock this container!");
+            if (servertime < sincelogin + delay) {
+                player.sendMessage(ChatColor.RED + "You must wait " + timeToString((servertime - (sincelogin + delay)) / 1000L) + " before you can unlock this container!");
                 return false;
             }
         }
-        if (!sinceowneronline){
-            long sinceopened = protection.getLastAccessed()*1000;
-            if (servertime >= sinceopened + delay){
+        if (!sinceowneronline) {
+            long sinceopened = protection.getLastAccessed() * 1000;
+            if (servertime >= sinceopened + delay) {
                 return true;
             }
-            if (servertime < sinceopened + delay){
-                player.sendMessage(ChatColor.RED + "You must wait " + timeToString((servertime - (sinceopened + delay)) /1000L)+ " before you can unlock this container!");
+            if (servertime < sinceopened + delay) {
+                player.sendMessage(ChatColor.RED + "You must wait " + timeToString((servertime - (sinceopened + delay)) / 1000L) + " before you can unlock this container!");
                 return false;
             }
         }
@@ -124,12 +123,13 @@ public class LWCKeysListener implements Listener {
         }
         return false;
     }
+
     // Code from LWC, altered to work with minus numbers all of the below code except line 132-134 and text changes on line 137 and 168 are belonging to the plugin LWC : https://github.com/Hidendra/LWC
     public static String timeToString(long time) {
         String str = "";
 
-        if (time < 0){
-            time = time *-1;
+        if (time < 0) {
+            time = time * -1;
         }
 
         if ((System.currentTimeMillis() / 1000L) - time == 0) {

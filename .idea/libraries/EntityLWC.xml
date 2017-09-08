@@ -1,7 +1,7 @@
 <component name="libraryTable">
   <library name="EntityLWC">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/../../JARS/APIS/EntityLWC.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../JARS/APIS/EntityLWC.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
