@@ -73,6 +73,9 @@ public class LWCKeysListener implements Listener {
                                 }
                             }
                         }
+                    } else {
+                        player.sendMessage(ChatColor.RED + "You don't have permission to use LWCKeys!");
+                        return;
                     }
                 }
             }

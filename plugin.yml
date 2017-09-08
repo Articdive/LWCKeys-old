@@ -1,5 +1,5 @@
 name: LWCKeys
-version: 2.1.0
+version: 2.2.1
 description: This plugin adds Keys, which can be used to unlock containers with LWC locks.
 authors: [Articdive]
 main: de.articdive.lwckeys.LWCKeysMain
