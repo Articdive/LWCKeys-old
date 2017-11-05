@@ -7,7 +7,9 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 
 public class LWCKeysCommands implements CommandExecutor {
@@ -16,7 +18,7 @@ public class LWCKeysCommands implements CommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender cs, Command cmd, String label, String[] args) {
-		String[] index = new String[]{ChatColor.YELLOW + "=====   " + ChatColor.GOLD + "LWCKeys" + ChatColor.YELLOW + "   =====", ChatColor.YELLOW + "/" + label + " give [Key] [Player] [Amount]"};
+		String[] index = new String[]{ChatColor.YELLOW + "=====   " + ChatColor.GOLD + "LWCKeys" + ChatColor.YELLOW + "   =====", ChatColor.YELLOW + "/" + label + " give [Key] [Player] [Amount]", ChatColor.YELLOW + "/" + label + " list"};
 		if (args.length == 0) {
 			cs.sendMessage(index);
 			return true;
@@ -26,6 +28,20 @@ public class LWCKeysCommands implements CommandExecutor {
 				if (args[0].equalsIgnoreCase("give")) {
 					if (cs.hasPermission("lwckeys.give")) {
 						cs.sendMessage(ChatColor.RED + "You need to specify a key!");
+						return true;
+					} else {
+						cs.sendMessage(ChatColor.RED + "Sorry you don't have permission to use this command!");
+						return true;
+					}
+				}
+				if (args[0].equalsIgnoreCase("list")) {
+					if (cs.hasPermission("lwckeys.list")) {
+						List<String> keysstrings = new ArrayList<>();
+						keysstrings.add(ChatColor.YELLOW + "=====   " + ChatColor.GOLD + "LWCKeys" + ChatColor.YELLOW + "   =====");
+						for (int j = 0; j < keys.size(); j++) {
+							keysstrings.add(keys.get(j).getDisplayname());
+						}
+						cs.sendMessage(keysstrings.toArray(new String[0]));
 						return true;
 					} else {
 						cs.sendMessage(ChatColor.RED + "Sorry you don't have permission to use this command!");
