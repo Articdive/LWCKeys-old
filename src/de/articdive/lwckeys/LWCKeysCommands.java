@@ -71,10 +71,10 @@ public class LWCKeysCommands implements CommandExecutor {
 								if (isPlayer(args[2])) {
 									Player target = Bukkit.getPlayerExact(args[2]);
 									target.getInventory().addItem(keys.get(j).createItemStack(1));
-									cs.sendMessage(ChatColor.GREEN + "You've given " + args[2] + "1 " + args[1] + " Key!");
+									cs.sendMessage(ChatColor.GREEN + "You've given " + args[2] + " 1 " + args[1] + " Key!");
 									return true;
 								} else {
-									cs.sendMessage(ChatColor.RED + "Player " + args[2] + " Couldn't be found or is not online!");
+									cs.sendMessage(ChatColor.RED + "Player " + args[2] + " couldn't be found or is not online!");
 									return true;
 								}
 							}
@@ -106,7 +106,7 @@ public class LWCKeysCommands implements CommandExecutor {
 										return true;
 									}
 								} else {
-									cs.sendMessage(ChatColor.RED + "Player " + args[2] + " Couldn't be found or is not online!");
+									cs.sendMessage(ChatColor.RED + "Player " + args[2] + " couldn't be found or is not online!");
 									return true;
 								}
 							}
