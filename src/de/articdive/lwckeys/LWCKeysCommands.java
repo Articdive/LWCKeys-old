@@ -37,7 +37,7 @@ public class LWCKeysCommands implements CommandExecutor {
 				if (args[0].equalsIgnoreCase("list")) {
 					if (cs.hasPermission("lwckeys.list")) {
 						List<String> keysstrings = new ArrayList<>();
-						keysstrings.add(ChatColor.YELLOW + "=====   " + ChatColor.GOLD + "LWCKeys" + ChatColor.YELLOW + "   =====");
+						keysstrings.add(ChatColor.YELLOW + "=====   " + ChatColor.GOLD + "List of LWCKeys" + ChatColor.YELLOW + "   =====");
 						for (int j = 0; j < keys.size(); j++) {
 							keysstrings.add(keys.get(j).getDisplayname());
 						}
